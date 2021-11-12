@@ -10,32 +10,22 @@ import Button from 'react-bootstrap/Button';
 const socket = new WebSocket("wss://www.cryptofacilities.com/ws/v1")
 
 function OrderBook() {
-    const [connected, setConnected] = useState(false)
-
-    // const [feed, setFeed] = useState<{} | null>(null)
-    const [productID, setProductID] = useState<string>("PI_XBTUSD")
-
-    // const [message, setMessage] = useState()
-
-
-    const [bidsArray, setBidsArray] = useState<number[][]>([])
-    const [asksArray, setAsksArray] = useState<number[][]>([])
-    const [bidsTotal, setBidsTotal] = useState<number[]>([])
-    const [asksTotal, setAsksTotal] = useState<number[]>([])
+    const [connected, setConnected] = useState(false)  // tracks whether socket is connected
+    const [productID, setProductID] = useState<string>("PI_XBTUSD") // tracks current product id
+    const [bidsArray, setBidsArray] = useState<number[][]>([]) // stores the array of current bids [price, size]
+    const [asksArray, setAsksArray] = useState<number[][]>([]) // stores the array of current asks [price, size]
+    const [bidsTotal, setBidsTotal] = useState<number[]>([]) // stores the array of total value for bids
+    const [asksTotal, setAsksTotal] = useState<number[]>([]) // stores the array of total value for asks
 
 
     useEffect(() => {
         socket.onopen = () => {
-            console.log('connection established')
             setConnected(true)
 
             // socket.send(generateMessage("subscribe", "PI_XBTUSD"))
-            // start()
 
             socket.onmessage = (event) => {
                 const data = JSON.parse(event.data)
-
-                // console.log(data)
 
                 const ifEvent = data.hasOwnProperty('event')
 
@@ -58,8 +48,6 @@ function OrderBook() {
                         setAsksTotal(calcTotal(newState))
                         return newState
                     });
-                    // setBidsTotal(calcTotal(bidsArray))
-                    // setAsksTotal(calcTotal(asksArray))
                 }
             }
         }
@@ -141,14 +129,12 @@ function OrderBook() {
     // halt the subscription
     const stop = () => {
         socket.send(generateMessage("unsubscribe", productID))
-        // socket.close()
-        // setConnected(false)
     }
 
     // calculate the spread
     const spread = () => {
         if (bidsArray.length > 0 && asksArray.length > 0) {
-            console.log(bidsArray)
+            // console.log(bidsArray)
             const highestBid = bidsArray[0][0]
             const lowestAsk = asksArray[0][0]
             return (lowestAsk - highestBid).toFixed(2)
@@ -205,7 +191,7 @@ function OrderBook() {
 
             <Row className="bookTable">
                 <Col className="bid" md={6}>
-                    {/* <Row>BID</Row> */}
+                    {/* BIDS */}
                     <Row className="justify-content-end">
                         <Col>
                             <Row className="tableHead heading justify-content-end">TOTAL</Row>
@@ -228,7 +214,7 @@ function OrderBook() {
                     </Row>
                 </Col>
                 <Col className="ask" md={6}>
-                    {/* <Row>ASK</Row> */}
+                    {/* ASKS */}
                     <Row>
                         <Col className="text-align-right">
                             <Row className="tableHead heading justify-content-end">PRICE</Row>

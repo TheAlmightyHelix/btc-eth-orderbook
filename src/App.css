@@ -1,6 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&display=swap');
+
 .App {
   text-align: center;
-  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 500;
 }
 
 .App-logo {
@@ -36,45 +39,46 @@
   }
 }
 
-.header .title{
+.header .title {
   text-align: left;
 }
 
-.header .heading{
+.header .heading {
   padding-left: 0;
   text-align: left;
 }
 
 .title {
-  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'IBM Plex Sans', sans-serif;
   font-weight: 700;
   font-size: larger;
 }
 
 .heading {
-  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'IBM Plex Sans', sans-serif;
   font-weight: 600;
   margin-bottom: 5px;
 }
 
 .mono {
-  font-family:'Courier New', Courier, monospace;
-  font-weight: 600;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 500;
 }
 
-.red{
+.red {
   color: #8d3236;
 }
 
-.green{
-  color:#4b805e;
+.green {
+  color: #4b805e;
 }
+
 .orderbook {
   border: 1px solid #2a2f3a;
   border-radius: 15px;
 }
 
-.header{
+.header {
   padding: 5px;
   border-bottom: 2px solid #2a2f3a;
 }
@@ -91,7 +95,7 @@
 }
 
 
-.util{
+.util {
   position: absolute;
   left: 0;
   top: 0;
