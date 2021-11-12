@@ -1,5 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useLayoutEffect } from 'react';
 import '../App.css';
+
+import '../../node_modules/react-vis/dist/style.css'
+import { XYPlot, HorizontalBarSeries } from 'react-vis';
 
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
@@ -17,41 +20,11 @@ function OrderBook() {
     const [bidsTotal, setBidsTotal] = useState<number[]>([]) // stores the array of total value for bids
     const [asksTotal, setAsksTotal] = useState<number[]>([]) // stores the array of total value for asks
 
+    const [lineHeight, setLineHeight] = useState<number>(0)
+    const tableRow = useRef<HTMLDivElement>(null);
+    const [columnWidth, setColumnWidth] = useState<number>(0)
+    const column = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        socket.onopen = () => {
-            setConnected(true)
-
-            socket.send(generateMessage("subscribe", "PI_XBTUSD"))
-
-            socket.onmessage = (event) => {
-                const data = JSON.parse(event.data)
-
-                const ifEvent = data.hasOwnProperty('event')
-
-                if (ifEvent) return // info messages, ignore them
-
-                if (data.hasOwnProperty('numLevels')) { // snapshot messages
-                    initialize(data.numLevels, data.bids, data.asks)
-                    return
-                }
-
-                // then we have the atcual delta messages
-                else {
-                    setBidsArray(prevState => {
-                        const newState = merge(prevState, data.bids, "bid")
-                        setBidsTotal(calcTotal(newState))
-                        return newState
-                    });
-                    setAsksArray(prevState => {
-                        const newState = merge(prevState, data.asks, "ask")
-                        setAsksTotal(calcTotal(newState))
-                        return newState
-                    });
-                }
-            }
-        }
-    }, [connected, asksArray, bidsArray])
 
     // helper method for genterating socket messages
     const generateMessage = (event: string, productID: string) => {
@@ -143,9 +116,33 @@ function OrderBook() {
         return total
     }
 
+    // // calculate depth
+    // const depth = (totals: number[], minBid: number, maxAsk: number) => {
+    //     let depth: number[] = []
+    //     totals.forEach((total) => {
+    //         depth.push(total / Math.max(minBid, maxAsk))
+    //     })
+    //     return depth
+    // }
+
     // calculate depth
-    const depth = (total: number, minBid: number, maxAsk: number) => {
-        return total / Math.max(minBid, maxAsk)
+    const depths = (which: string) => {
+        // find the larger one between total ask and total bid
+        const maxTotal = Math.max(bidsTotal[bidsTotal.length - 1], asksTotal[asksTotal.length - 1])
+
+        let depths: { x: number, y: number }[] = []
+        if (maxTotal)
+            if (which === "bids") {
+                for (let i = 0; i < bidsTotal.length; i++) {
+                    depths.push({ x: bidsTotal[i] / maxTotal, y: bidsTotal.length - i })
+                }
+            }
+            else if (which === "asks") {
+                for (let i = 0; i < asksTotal.length; i++) {
+                    depths.push({ x: asksTotal[i] / maxTotal, y: asksTotal.length - i })
+                }
+            }
+        return depths
     }
 
 
@@ -165,6 +162,52 @@ function OrderBook() {
     }
 
 
+    // lifecycle functions
+    useEffect(() => {
+        socket.onopen = () => {
+            setConnected(true)
+
+            socket.send(generateMessage("subscribe", "PI_XBTUSD"))
+
+            socket.onmessage = (event) => {
+                const data = JSON.parse(event.data)
+
+                const ifEvent = data.hasOwnProperty('event')
+
+                if (ifEvent) return // info messages, ignore them
+
+                if (data.hasOwnProperty('numLevels')) { // snapshot messages
+                    initialize(data.numLevels, data.bids, data.asks)
+                    return
+                }
+
+                // then we have the atcual delta messages
+                else {
+                    setBidsArray(prevState => {
+                        const newState = merge(prevState, data.bids, "bid")
+                        setBidsTotal(calcTotal(newState))
+                        return newState
+                    });
+                    setAsksArray(prevState => {
+                        const newState = merge(prevState, data.asks, "ask")
+                        setAsksTotal(calcTotal(newState))
+                        return newState
+                    });
+                }
+            }
+        }
+
+
+    }, [connected, asksArray, bidsArray]) // dependency list
+
+    useLayoutEffect(() => {
+        if (tableRow.current !== null) {
+            setLineHeight(tableRow.current.offsetHeight)
+        }
+        if (column.current !== null) {
+            setColumnWidth(column.current.offsetWidth)
+        }
+    }, [lineHeight, columnWidth])
 
 
 
@@ -176,59 +219,109 @@ function OrderBook() {
                 <Col md={6} className="heading">Spread: <span className="mono">{spread()}</span></Col>
             </Row>
 
-            <Row className="bookTable">
-                <Col className="bid" md={6}>
-                    {/* BIDS */}
+            <Row className="tableHeadWrapper">
+                <Col className="bids" md={6}>
                     <Row className="justify-content-end">
-                        <Col>
-                            <Row className="tableHead heading justify-content-end">TOTAL</Row>
-                            {bidsTotal?.map((e) =>
-                                <Row key={e} className="mono justify-content-end">{e.toLocaleString()}</Row>)
-                            }
-                        </Col>
-                        <Col>
-                            <Row className="tableHead heading justify-content-end">SIZE</Row>
-                            {bidsArray?.map((e) =>
-                                <Row key={e[0]} className="mono justify-content-end">{e[1].toLocaleString()}</Row>)
-                            }
-                        </Col>
-                        <Col>
-                            <Row className="tableHead heading justify-content-end">PRICE</Row>
-                            {bidsArray?.map((e) =>
-                                <Row key={e[0]} className="mono red justify-content-end">{e[0].toFixed(2)}</Row>)
-                            }
-                        </Col>
+                        <Col ><Row className="tableHead heading justify-content-end">TOTAL</Row></Col>
+                        <Col ><Row className="tableHead heading justify-content-end">SIZE</Row></Col>
+                        <Col ><Row className="tableHead heading justify-content-end">PRICE</Row></Col>
                     </Row>
                 </Col>
-                <Col className="ask" md={6}>
-                    {/* ASKS */}
-                    <Row>
-                        <Col className="text-align-right">
-                            <Row className="tableHead heading justify-content-end">PRICE</Row>
-                            {asksArray?.map((e) =>
-                                <Row key={e[0]} className="mono green justify-content-end">{e[0].toFixed(2)}</Row>)
-                            }
-                        </Col>
-                        <Col className="">
-                            <Row className="tableHead heading justify-content-end">SIZE</Row>
-                            {asksArray?.map((e) =>
-                                <Row key={e[0]} className="mono justify-content-end">{e[1].toLocaleString()}</Row>)
-                            }
-                        </Col>
-                        <Col className="">
-                            <Row className="tableHead heading justify-content-end">TOTAL</Row>
-                            {asksTotal?.map((e) =>
-                                <Row key={e} className="mono justify-content-end">{e.toLocaleString()}</Row>)
-                            }
-                        </Col>
+                <Col className="asks" md={6}>
+                    <Row className="justify-content-end">
+                        <Col ><Row className="tableHead heading justify-content-end">PRICE</Row></Col>
+                        <Col ><Row className="tableHead heading justify-content-end">SIZE</Row></Col>
+                        <Col ><Row className="tableHead heading justify-content-end">TOTAL</Row></Col>
                     </Row>
                 </Col>
             </Row>
+
+            <Row >
+                <Container className="tableContainer">
+                    <Row className="bookTable">
+                        <Col className="bids" md={6}>
+                            {/* BIDS */}
+                            <Row className="justify-content-end">
+                                <Col>
+                                    {/* <Row className="tableHead heading justify-content-end">TOTAL</Row> */}
+                                    {bidsTotal?.map((e) =>
+                                        <Row key={e} className="mono justify-content-end">{e.toLocaleString()}</Row>)
+                                    }
+                                    <Row className="transparent" ref={tableRow}>_ </Row>
+                                </Col>
+                                <Col>
+                                    {/* <Row className="tableHead heading justify-content-end">SIZE</Row> */}
+                                    {bidsArray?.map((e) =>
+                                        <Row key={e[0]} className="mono justify-content-end">{e[1].toLocaleString()}</Row>)
+                                    }
+                                </Col>
+                                <Col>
+                                    {/* <Row className="tableHead heading justify-content-end">PRICE</Row> */}
+                                    {bidsArray?.map((e) =>
+                                        <Row key={e[0]} className="mono red justify-content-end">{e[0].toFixed(2)}</Row>)
+                                    }
+                                </Col>
+                            </Row>
+                        </Col>
+                        <Col className="asks" md={6}>
+                            {/* ASKS */}
+                            <Row>
+                                <Col className="">
+                                    {/* <Row className="tableHead heading justify-content-end">PRICE</Row> */}
+                                    {asksArray?.map((e) =>
+                                        <Row key={e[0]} className="mono green justify-content-end">{e[0].toFixed(2)}</Row>)
+                                    }
+                                </Col>
+                                <Col className="">
+                                    {/* <Row className="tableHead heading justify-content-end">SIZE</Row> */}
+                                    {asksArray?.map((e) =>
+                                        <Row key={e[0]} className="mono justify-content-end">{e[1].toLocaleString()}</Row>)
+                                    }
+                                </Col>
+                                <Col className="">
+                                    {/* <Row className="tableHead heading justify-content-end">TOTAL</Row> */}
+                                    {asksTotal?.map((e) =>
+                                        <Row key={e} className="mono justify-content-end">{e.toLocaleString()}</Row>)
+                                    }
+                                </Col>
+                            </Row>
+                        </Col>
+                    </Row>
+
+                    <Row className="visualization">
+                        <Col ref={column} md={6} className="vis-col">
+                            <XYPlot height={(lineHeight + 0.4) * bidsTotal.length} width={columnWidth} xDomain={[0, 1]} >
+                                <HorizontalBarSeries
+                                    data={depths("bids")}
+                                    barWidth={1}
+                                    color="#8d3236"
+                                    opacity={0.5}
+
+                                />
+                            </XYPlot>
+                        </Col>
+                        <Col md={6} className="vis-col">
+                            <XYPlot height={(lineHeight + 0.4) * asksTotal.length} width={columnWidth} xDomain={[0, 1]} >
+                                <HorizontalBarSeries
+                                    data={depths("asks")}
+                                    barWidth={1}
+                                    color="#4b805e"
+                                    opacity={0.5}
+                                />
+                            </XYPlot>
+                        </Col>
+                    </Row>
+                </Container>
+            </Row>
+
+
 
             <Row className="toggleFeed justify-content-center align-items-center mt-3">
                 <Col md={3}>Current Feed: {productID}</Col>
                 <Col md={3}><Button onClick={toggleFeed}>Toggle Feed</Button></Col>
             </Row>
+
+
 
         </Container>
     );

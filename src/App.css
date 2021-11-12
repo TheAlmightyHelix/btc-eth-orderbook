@@ -73,6 +73,10 @@
   color: #4b805e;
 }
 
+.transparent {
+  color: #00000000
+}
+
 .orderbook {
   border: 1px solid #2a2f3a;
   border-radius: 15px;
@@ -83,17 +87,44 @@
   border-bottom: 2px solid #2a2f3a;
 }
 
+.tableHeadWrapper {
+  padding: 0 30px;
+}
+
 .tableHead {
   padding: 5px;
   border-bottom: 1px solid #2a2f3a;
 }
 
-.bookTable {
-  padding: 0 30px;
-  max-height: 70vh;
+.tableContainer {
+  position: relative;
   overflow: scroll;
+  max-height: 70vh;
+
 }
 
+.bookTable {
+  max-height: 70vh;
+  position: relative;
+  top: 0;
+  width: 100%;
+  z-index: 1;
+  padding: 0 30px;
+  /* overflow: scroll; */
+}
+
+.visualization {
+  max-height: 70vh;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  z-index: 0;
+}
+
+.vis-col{
+  margin: 0;
+  padding: 0;
+}
 
 .util {
   position: absolute;
@@ -101,6 +132,6 @@
   top: 0;
 }
 
-/* .toggleFeed{
-  justify-content: center;
-} */
+.toggleFeed {
+  position: relative;
+}

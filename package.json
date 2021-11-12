@@ -15,6 +15,7 @@
     "react-bootstrap": "^2.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "4.0.3",
+    "react-vis": "^1.11.7",
     "typescript": "^4.4.4",
     "web-vitals": "^1.1.2"
   },
@@ -43,6 +44,7 @@
     ]
   },
   "devDependencies": {
-    "@types/priorityqueuejs": "^1.0.1"
+    "@types/priorityqueuejs": "^1.0.1",
+    "@types/react-vis": "^1.11.10"
   }
 }
