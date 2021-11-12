@@ -1,5 +1,6 @@
 .App {
   text-align: center;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .App-logo {
@@ -14,25 +15,88 @@
 }
 
 .App-header {
-  /* background-color: #282c34; */
-  /* min-height: 100vh; */
+  background-color: #1b1d27;
+  min-height: 100vh;
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  /* flex-direction: column; */
+  /* align-items: center; */
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  /* color: white; */
+  /* font-size: calc(10px + 2vmin); */
+  color: white;
 }
 
-.App-link {
-  color: #61dafb;
-}
 
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
 }
+
+.header .title{
+  text-align: left;
+}
+
+.header .heading{
+  padding-left: 0;
+  text-align: left;
+}
+
+.title {
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 700;
+  font-size: larger;
+}
+
+.heading {
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.mono {
+  font-family:'Courier New', Courier, monospace;
+  font-weight: 600;
+}
+
+.red{
+  color: #8d3236;
+}
+
+.green{
+  color:#4b805e;
+}
+.orderbook {
+  border: 1px solid #2a2f3a;
+  border-radius: 15px;
+}
+
+.header{
+  padding: 5px;
+  border-bottom: 2px solid #2a2f3a;
+}
+
+.tableHead {
+  padding: 5px;
+  border-bottom: 1px solid #2a2f3a;
+}
+
+.bookTable {
+  padding: 0 30px;
+  max-height: 70vh;
+  overflow: scroll;
+}
+
+
+.util{
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+/* .toggleFeed{
+  justify-content: center;
+} */
