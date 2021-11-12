@@ -22,7 +22,7 @@ function OrderBook() {
         socket.onopen = () => {
             setConnected(true)
 
-            // socket.send(generateMessage("subscribe", "PI_XBTUSD"))
+            socket.send(generateMessage("subscribe", "PI_XBTUSD"))
 
             socket.onmessage = (event) => {
                 const data = JSON.parse(event.data)
@@ -122,15 +122,6 @@ function OrderBook() {
         return merged;
     }
 
-    const start = () => {
-        socket.send(generateMessage("subscribe", productID))
-    }
-
-    // halt the subscription
-    const stop = () => {
-        socket.send(generateMessage("unsubscribe", productID))
-    }
-
     // calculate the spread
     const spread = () => {
         if (bidsArray.length > 0 && asksArray.length > 0) {
@@ -179,10 +170,6 @@ function OrderBook() {
 
     return (
         <Container className="orderbook">
-            <Row className="util">
-                <Col md="auto"><Button onClick={stop}>stop</Button></Col>
-                <Col md="auto"><Button onClick={start}>start</Button></Col>
-            </Row>
 
             <Row className="header">
                 <Col md={6} className="title">Order Book</Col>
