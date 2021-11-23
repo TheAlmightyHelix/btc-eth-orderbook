@@ -1,6 +1,6 @@
 # BTC/ETH Orderbook
 
-A functioning real time orderbook to the user. The orderbook consists of two sides: the bids/buy side and the asks/sell side. Both sides contain information about the amount of open orders i n the market at each price level.
+A functioning real time orderbook in a hypothetical trading platform. The orderbook consists of two sides: the bids/buy side and the asks/sell side. Both sides contain information about the amount of open orders i n the market at each price level.
 
 Order levels are sorted using the price in either ascending or descending order depending on the orientation of the orderbook.
 
